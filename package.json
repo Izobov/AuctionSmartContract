@@ -1,0 +1,11 @@
+{
+  "name": "AuctionSmartContract",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Izobov/AuctionSmartContract.git",
+  "author": "Ivan Izobov <izobov9@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "hardhat": "^2.17.3"
+  }
+}
