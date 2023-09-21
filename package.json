@@ -6,7 +6,8 @@
   "author": "Ivan Izobov <izobov9@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "npx hardhat coverage"
+    "test": "npx hardhat coverage",
+    "compile": "npx hardhat compile"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
