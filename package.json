@@ -5,6 +5,9 @@
   "repository": "https://github.com/Izobov/AuctionSmartContract.git",
   "author": "Ivan Izobov <izobov9@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "test": "npx hardhat coverage"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
     "@nomicfoundation/hardhat-ethers": "^3.0.0",
