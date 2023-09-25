@@ -5,29 +5,49 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require("hardhat");
+const fs = require("fs");
+const path = require("path");
+const { ethers, artifacts } = hre;
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
-
-  const lockedAmount = hre.ethers.parseEther("0.001");
-
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
+  if (network.name === "hardhat") {
+    console.warn("You are trying to deploy a contract to the Hardhat Network");
+  }
+  const [acc1] = await ethers.getSigners();
+  console.log("Deploying with", await acc1.getAddress());
+  const contract = await ethers.deployContract("AucEngine");
+  await contract.waitForDeployment();
+  await saveFrontendFiles({
+    AucEngine: contract,
   });
-
-  await lock.waitForDeployment();
-
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
-  );
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+async function saveFrontendFiles(contracts) {
+  const dir = path.join(__dirname, "../client/contracts");
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  Object.entries(contracts).forEach(async (item) => {
+    const [name, contract] = item;
+    if (contract) {
+      const address = await contract.getAddress();
+      const p = path.join(dir, "/", `${name}-contract-address.json`);
+      fs.writeFileSync(
+        path.join(dir, "/", `${name}-contract-address.json`),
+        JSON.stringify({ [name]: address }, undefined, 2)
+      );
+    }
+    const ContractArtifact = artifacts.readArtifactSync(name);
+    fs.writeFileSync(
+      path.join(dir, "/", name + ".json"),
+      JSON.stringify(ContractArtifact, null, 2)
+    );
+  });
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((e) => {
+    console.log(e);
+    process.exit(1);
+  });
