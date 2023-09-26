@@ -24,12 +24,7 @@ async function main() {
     if (!stopped) {
       const tx = await contract
         .connect(acc2)
-        .createAuction(
-          ethers.parseEther(`${startPrice}`),
-          ethers.parseEther(`${discount}`),
-          id,
-          duration
-        );
+        .createAuction(BigInt(startPrice), BigInt(discount), id, duration);
       await tx.wait();
     }
   }

@@ -1,5 +1,4 @@
 const { expect } = require("chai");
-const { getAddress } = require("ethers");
 const { ethers } = require("hardhat");
 
 describe("Auction Engine", () => {
@@ -26,7 +25,7 @@ describe("Auction Engine", () => {
   it("creates auction", async () => {
     const { startingPrice, discountRate, item, duration } = data;
     const tx = await createAuction();
-    const auction = await auct.auctions(0);
+    const auction = await auct.auctions(item);
     const time = await getTimestamp(tx.blockNumber);
     expect(auction.startingPrice).to.eq(startingPrice);
     expect(auction.seller).to.eq(seller.address);
@@ -40,15 +39,16 @@ describe("Auction Engine", () => {
 
   it("allows to buy", async function () {
     await createAuction();
+    const item = data.item;
     this.timeout(5000);
-    await expect(auct.connect(buyer).buy(0, { value: 1 })).to.be.revertedWith(
-      "not enough funds!"
-    );
+    await expect(
+      auct.connect(buyer).buy(item, { value: 1 })
+    ).to.be.revertedWith("not enough funds!");
     await delay(1000);
     const buyTx = await auct
       .connect(buyer)
-      .buy(0, { value: data.startingPrice });
-    const auction = await auct.auctions(0);
+      .buy(item, { value: data.startingPrice });
+    const auction = await auct.auctions(item);
     const finalPrice = ethers.getNumber(auction.finalPrice);
     const fee = Math.floor((finalPrice * 10) / 100);
     const sellerAmount = finalPrice - fee;
@@ -59,20 +59,21 @@ describe("Auction Engine", () => {
     );
     await expect(buyTx)
       .to.emit(auct, "AuctionEnded")
-      .withArgs(0, finalPrice, buyer.address);
+      .withArgs(item, finalPrice, buyer.address);
     expect(auction.stopped).to.be.true;
     await expect(
-      auct.connect(buyer).buy(0, { value: data.startingPrice })
+      auct.connect(buyer).buy(item, { value: data.startingPrice })
     ).to.be.revertedWith("stopped!");
-    await expect(auct.connect(buyer).getPrice(0)).to.be.revertedWith(
+    await expect(auct.connect(buyer).getPrice(item)).to.be.revertedWith(
       "stopped!"
     );
   });
 
   it("withdraw", async () => {
     await createAuction();
-    await auct.connect(buyer).buy(0, { value: data.startingPrice });
-    const auction = await auct.auctions(0);
+    const item = data.item;
+    await auct.connect(buyer).buy(item, { value: data.startingPrice });
+    const auction = await auct.auctions(item);
     const finalPrice = ethers.getNumber(auction.finalPrice);
     const fee = Math.floor((finalPrice * 10) / 100);
     await expect(
@@ -86,9 +87,9 @@ describe("Auction Engine", () => {
   it("shouldn't allow to get buy when auction finished", async () => {
     await createAuction(1);
     await delay(2);
-    await expect(auct.connect(buyer).buy(0, { value: 1 })).to.be.revertedWith(
-      "ended!"
-    );
+    await expect(
+      auct.connect(buyer).buy(data.item, { value: 1 })
+    ).to.be.revertedWith("ended!");
   });
 
   it("shouldn't allow to create auction with wrong price or discountRate", async () => {

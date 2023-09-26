@@ -60,6 +60,10 @@
       Connect Wallet!</GradientButton
     >
   {:else}
-    {$wallet.balance || `0 ETH`}
+    <div class="text-3xl text-gray-800 font-bold">My Balance:</div>
+    <div class="text-xs font-medium text-gray-600">{$wallet.account}</div>
+    <div class="text-xl font-medium text-gray-600">
+      {$wallet.balance || `0 ETH`}
+    </div>
   {/if}
 </div>

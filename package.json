@@ -6,10 +6,12 @@
   "author": "Ivan Izobov <izobov9@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "start": "concurrently \"yarn start:node\" \"yarn deploy\" \"yarn start:server\" \"yarn start:client\"",
     "test": "npx hardhat coverage",
     "compile": "npx hardhat compile",
-    "client": "cd client && yarn dev",
-    "server": "yarn json-server --watch server/db.json",
+    "start:client": "cd client && yarn dev",
+    "start:node": "npx hardhat node ",
+    "start:server": "yarn json-server --watch server/db.json",
     "deploy": "npx hardhat run scripts/deploy.js --network localhost"
   },
   "devDependencies": {
@@ -21,6 +23,7 @@
     "@typechain/ethers-v6": "^0.4.0",
     "@typechain/hardhat": "^8.0.0",
     "chai": "^4.2.0",
+    "concurrently": "^8.2.1",
     "ethers": "^6.4.0",
     "hardhat": "^2.14.0",
     "hardhat-gas-reporter": "^1.0.8",

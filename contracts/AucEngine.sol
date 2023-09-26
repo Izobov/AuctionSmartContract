@@ -17,15 +17,10 @@ contract AucEngine {
         string item;
         bool stopped;
     }
-    event AuctionCreated(
-        uint index,
-        string itemName,
-        uint startingPrice,
-        uint duration
-    );
-    event AuctionEnded(uint index, uint price, address winner);
+    event AuctionCreated(string itemName, uint startingPrice, uint duration);
+    event AuctionEnded(string item, uint price, address winner);
 
-    Auction[] public auctions;
+    mapping(string => Auction) public auctions;
 
     constructor() {
         owner = msg.sender;
@@ -54,25 +49,24 @@ contract AucEngine {
             item: _item,
             stopped: false
         });
-        auctions.push(newAuction);
-
-        emit AuctionCreated(auctions.length - 1, _item, _startPrice, duration);
+        auctions[_item] = newAuction;
+        emit AuctionCreated(_item, _startPrice, duration);
     }
 
-    function getPrice(uint index) public view returns (uint) {
-        Auction memory auction = auctions[index];
+    function getPrice(string memory item) public view returns (uint) {
+        Auction memory auction = auctions[item];
         require(!auction.stopped, "stopped!");
         uint elapsed = block.timestamp - auction.startAt;
         uint discount = auction.discountRate * elapsed;
         return auction.startingPrice - discount;
     }
 
-    function buy(uint index) external payable {
-        Auction storage a = auctions[index];
+    function buy(string memory item) external payable {
+        Auction storage a = auctions[item];
         require(!a.stopped, "stopped!");
         require(block.timestamp < a.endsAt, "ended!");
 
-        uint price = getPrice(index);
+        uint price = getPrice(item);
         require(msg.value >= price, "not enough funds!");
         a.stopped = true;
         a.finalPrice = price;
@@ -83,7 +77,7 @@ contract AucEngine {
 
         a.seller.transfer(price - ((price * FEE) / 100));
 
-        emit AuctionEnded(index, price, msg.sender);
+        emit AuctionEnded(item, price, msg.sender);
     }
 
     function withdraw(address payable _to) external {

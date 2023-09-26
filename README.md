@@ -32,6 +32,16 @@ cd AuctionSmartContract
 npm install
 ```
 
+### Start the project
+
+This command will start hardhat node, json server and client:
+
+```shell
+yarn start
+```
+
+Then open port [http://localhost:5173/](http://localhost:5173/)
+
 ### Compile the Smart Contract
 
 Compile the smart contract using the following command:
