@@ -6,7 +6,7 @@
   "author": "Ivan Izobov <izobov9@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "concurrently \"yarn start:node\" \"yarn deploy\" \"yarn start:server\" \"yarn start:client\"",
+    "start": "concurrently --restart-tries 2 \"yarn start:node\" \"yarn deploy\" \"yarn start:server\" \"yarn start:client\"",
     "test": "npx hardhat coverage",
     "compile": "npx hardhat compile",
     "start:client": "cd client && yarn dev",
